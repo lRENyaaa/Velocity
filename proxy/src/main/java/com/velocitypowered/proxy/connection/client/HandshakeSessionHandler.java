@@ -99,6 +99,11 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
         ic.disconnect(Component.translatable("multiplayer.disconnect.transfers_disabled"));
         return true;
       }
+
+      if (handshake.getBungeeHandShakeData().split("\00").length > 1) {
+        connection.setBungeeHandShakeData(handshake.getBungeeHandShakeData());
+      }
+
       connection.setProtocolVersion(handshake.getProtocolVersion());
       connection.setAssociation(ic);
 

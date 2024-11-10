@@ -1,3 +1,7 @@
+# About This Fork
+This fork implements proxy-behind-proxy functionality in legacy forwarding mode.  
+Please note that this behavior **is not supported by Velocity**, and this implementation **is for reference and personal development use only.**
+
 # Velocity
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/PaperMC/Velocity/gradle.yml)](https://papermc.io/downloads/velocity)

@@ -24,6 +24,7 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
+import com.velocitypowered.proxy.protocol.util.NettyPreconditions;
 import io.netty.buffer.ByteBuf;
 
 public class HandshakePacket implements MinecraftPacket {
@@ -32,6 +33,7 @@ public class HandshakePacket implements MinecraftPacket {
   // While DNS technically allows any character to be used, in practice ASCII is used.
   private static final int MAXIMUM_HOSTNAME_LENGTH = 255 + HANDSHAKE_HOSTNAME_TOKEN.length() + 1;
   private ProtocolVersion protocolVersion;
+  private String bungeeHandShakeData = "";
   private String serverAddress = "";
   private int port;
   private HandshakeIntent intent;
@@ -45,12 +47,20 @@ public class HandshakePacket implements MinecraftPacket {
     this.protocolVersion = protocolVersion;
   }
 
+  public String getBungeeHandShakeData() {
+    return bungeeHandShakeData;
+  }
+
   public String getServerAddress() {
     return serverAddress;
   }
 
   public void setServerAddress(String serverAddress) {
     this.serverAddress = serverAddress;
+  }
+
+  public void setBungeeHandShakeData(String bungeeHandShakeData) {
+    this.bungeeHandShakeData = bungeeHandShakeData;
   }
 
   public int getPort() {
@@ -78,6 +88,7 @@ public class HandshakePacket implements MinecraftPacket {
   public String toString() {
     return "Handshake{"
         + "protocolVersion=" + protocolVersion
+        + ", bungeeHandShakeData='" + bungeeHandShakeData + '\''
         + ", serverAddress='" + serverAddress + '\''
         + ", port=" + port
         + ", nextStatus=" + nextStatus
@@ -88,7 +99,8 @@ public class HandshakePacket implements MinecraftPacket {
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion ignored) {
     int realProtocolVersion = ProtocolUtils.readVarInt(buf);
     this.protocolVersion = ProtocolVersion.getProtocolVersion(realProtocolVersion);
-    this.serverAddress = ProtocolUtils.readString(buf, MAXIMUM_HOSTNAME_LENGTH);
+    this.bungeeHandShakeData = ProtocolUtils.readString(buf);
+    this.serverAddress = getServerAddress(bungeeHandShakeData);
     this.port = buf.readUnsignedShort();
     this.nextStatus = ProtocolUtils.readVarInt(buf);
     this.intent = HandshakeIntent.getById(nextStatus);
@@ -97,7 +109,11 @@ public class HandshakePacket implements MinecraftPacket {
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion ignored) {
     ProtocolUtils.writeVarInt(buf, this.protocolVersion.getProtocol());
-    ProtocolUtils.writeString(buf, this.serverAddress);
+    if (bungeeHandShakeData.isEmpty()){
+      ProtocolUtils.writeString(buf, this.serverAddress);
+    } else {
+      ProtocolUtils.writeString(buf, this.bungeeHandShakeData);
+    }
     buf.writeShort(this.port);
     ProtocolUtils.writeVarInt(buf, this.nextStatus);
   }
@@ -105,5 +121,11 @@ public class HandshakePacket implements MinecraftPacket {
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
     return handler.handle(this);
+  }
+
+  private static String getServerAddress(String handShakeData) {
+    String address = handShakeData.split("\00")[0];
+    NettyPreconditions.checkFrame(address.length() <= MAXIMUM_HOSTNAME_LENGTH, "Got a too-long string (got %s, max %s)", address.length(), MAXIMUM_HOSTNAME_LENGTH);
+    return address;
   }
 }

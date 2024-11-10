@@ -190,6 +190,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
   private @Nullable ClientSettingsPacket clientSettingsPacket;
   private final ChatQueue chatQueue;
   private final ChatBuilderFactory chatBuilderFactory;
+  private final String bungeeHandShakeData;
 
   ConnectedPlayer(VelocityServer server, GameProfile profile, MinecraftConnection connection,
                   @Nullable InetSocketAddress virtualHost, @Nullable String rawVirtualHost, boolean onlineMode,
@@ -214,6 +215,7 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     this.chatQueue = new ChatQueue(this);
     this.chatBuilderFactory = new ChatBuilderFactory(this.getProtocolVersion());
     this.resourcePackHandler = ResourcePackHandler.create(this, server);
+    this.bungeeHandShakeData = connection.getBungeeHandShakeData();
   }
 
   /**
@@ -223,6 +225,10 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     for (final VelocityBossBarImplementation bar : this.bossBars) {
       bar.viewerDisconnected(this);
     }
+  }
+
+  public String getBungeeHandShakeData() {
+    return bungeeHandShakeData;
   }
 
   public ChatBuilderFactory getChatBuilderFactory() {

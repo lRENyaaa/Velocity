@@ -73,6 +73,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -93,6 +94,7 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
   public final VelocityServer server;
   private ConnectionType connectionType = ConnectionTypes.UNDETERMINED;
   private boolean knownDisconnect = false;
+  private String bungeeHandShakeData = "";
 
   /**
    * Initializes a new {@link MinecraftConnection} instance.
@@ -411,6 +413,10 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
     return protocolVersion;
   }
 
+  public String getBungeeHandShakeData() {
+    return bungeeHandShakeData;
+  }
+
   /**
    * Sets the new protocol version for the connection.
    *
@@ -433,6 +439,15 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
     if (changed) {
       channel.pipeline().fireUserEventTriggered(VelocityConnectionEvent.PROTOCOL_VERSION_CHANGED);
     }
+  }
+
+  /**
+   * Sets the bungee handshake data if main proxy is enabled legacy mode.
+   *
+   * @param bungeeHandShakeData the protocol version to use
+   */
+  public void setBungeeHandShakeData(@NonNull String bungeeHandShakeData) {
+    this.bungeeHandShakeData = bungeeHandShakeData;
   }
 
   public @Nullable MinecraftSessionHandler getActiveSessionHandler() {
