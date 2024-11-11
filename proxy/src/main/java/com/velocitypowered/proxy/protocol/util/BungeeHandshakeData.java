@@ -5,11 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.velocitypowered.api.util.GameProfile;
 import com.velocitypowered.api.util.UuidUtils;
-import com.velocitypowered.proxy.connection.PlayerDataForwarding;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -20,8 +18,6 @@ import static com.velocitypowered.proxy.connection.PlayerDataForwarding.LEGACY_S
 
 public class BungeeHandshakeData {
 
-    /** The name of the BungeeGuard auth token. */
-    private static final String BUNGEEGUARD_TOKEN_NAME = "bungeeguard-token";
     /** The key used to define the name of properties in the handshake. */
     private static final String PROPERTY_NAME_KEY = "name";
     /** The key used to define the value of properties in the handshake. */
@@ -65,7 +61,7 @@ public class BungeeHandshakeData {
 
         for (JsonObject propertyJsonObject : propertyJsonObjects){
             GameProfile.Property property = readFromJsonObject(propertyJsonObject);
-            if (property.getName().equals(BUNGEEGUARD_TOKEN_NAME)) {
+            if (property.getName().equals(BUNGEE_GUARD_TOKEN_PROPERTY_NAME)) {
                 forwardingSecret = property.getValue();
                 continue;
             }
