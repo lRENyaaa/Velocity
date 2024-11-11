@@ -194,8 +194,6 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
       handshake.setServerAddress(playerVhost);
     }
 
-    System.out.println("Now sending: " + handshake.getServerAddress());
-
     handshake.setPort(proxyPlayer.getVirtualHost()
             .orElseGet(() -> registeredServer.getServerInfo().getAddress())
             .getPort());
