@@ -49,6 +49,8 @@ import com.velocitypowered.proxy.server.VelocityRegisteredServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
+
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -140,8 +142,8 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
   }
 
   private String createLegacyForwardingAddress() {
-    if (!proxyPlayer.getBungeeHandShakeData().isEmpty()) {
-      return proxyPlayer.getBungeeHandShakeData();
+    if (proxyPlayer.getBungeeHandshakeData() != null) {
+      return proxyPlayer.getBungeeHandshakeData().encode(null);
     }
     return PlayerDataForwarding.createLegacyForwardingAddress(
       proxyPlayer.getVirtualHost().orElseGet(() ->
@@ -152,6 +154,10 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
   }
 
   private String createBungeeGuardForwardingAddress(byte[] forwardingSecret) {
+    if (proxyPlayer.getBungeeHandshakeData() != null) {
+      return proxyPlayer.getBungeeHandshakeData().encode(new String(forwardingSecret, StandardCharsets.UTF_8));
+    }
+
     return PlayerDataForwarding.createBungeeGuardForwardingAddress(
       proxyPlayer.getVirtualHost().orElseGet(() ->
         registeredServer.getServerInfo().getAddress()).getHostString(),
@@ -187,6 +193,8 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
     } else {
       handshake.setServerAddress(playerVhost);
     }
+
+    System.out.println("Now sending: " + handshake.getServerAddress());
 
     handshake.setPort(proxyPlayer.getVirtualHost()
             .orElseGet(() -> registeredServer.getServerInfo().getAddress())

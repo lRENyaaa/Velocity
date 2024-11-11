@@ -1,5 +1,5 @@
 # About This Fork
-This fork implements proxy-behind-proxy functionality in legacy forwarding mode.  
+This fork implements proxy-behind-proxy functionality in legacy/bungeeguard forwarding mode.  
 Please note that this behavior **[is not supported by Velocity](https://docs.papermc.io/velocity/server-compatibility#proxy-behind-proxy-bungeecord-velocity-)**, and this implementation **is for reference and personal development use only.**
 
 # Velocity

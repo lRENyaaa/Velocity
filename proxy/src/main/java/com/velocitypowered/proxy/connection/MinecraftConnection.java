@@ -50,6 +50,7 @@ import com.velocitypowered.proxy.protocol.netty.MinecraftVarintLengthEncoder;
 import com.velocitypowered.proxy.protocol.netty.PlayPacketQueueInboundHandler;
 import com.velocitypowered.proxy.protocol.netty.PlayPacketQueueOutboundHandler;
 import com.velocitypowered.proxy.protocol.packet.SetCompressionPacket;
+import com.velocitypowered.proxy.protocol.util.BungeeHandshakeData;
 import com.velocitypowered.proxy.util.except.QuietDecoderException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -94,7 +95,7 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
   public final VelocityServer server;
   private ConnectionType connectionType = ConnectionTypes.UNDETERMINED;
   private boolean knownDisconnect = false;
-  private String bungeeHandShakeData = "";
+  private BungeeHandshakeData bungeeHandshakeData = null;
 
   /**
    * Initializes a new {@link MinecraftConnection} instance.
@@ -413,8 +414,8 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
     return protocolVersion;
   }
 
-  public String getBungeeHandShakeData() {
-    return bungeeHandShakeData;
+  public BungeeHandshakeData getBungeeHandshakeData() {
+    return bungeeHandshakeData;
   }
 
   /**
@@ -444,10 +445,10 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
   /**
    * Sets the bungee handshake data if main proxy is enabled legacy mode.
    *
-   * @param bungeeHandShakeData the protocol version to use
+   * @param bungeeHandshakeData the protocol version to use
    */
-  public void setBungeeHandShakeData(@NonNull String bungeeHandShakeData) {
-    this.bungeeHandShakeData = bungeeHandShakeData;
+  public void setBungeeHandshakeData(@NonNull BungeeHandshakeData bungeeHandshakeData) {
+    this.bungeeHandshakeData = bungeeHandshakeData;
   }
 
   public @Nullable MinecraftSessionHandler getActiveSessionHandler() {

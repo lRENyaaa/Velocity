@@ -47,9 +47,9 @@ public final class PlayerDataForwarding {
   public static final int MODERN_LAZY_SESSION = 4;
   public static final int MODERN_MAX_VERSION = MODERN_LAZY_SESSION;
 
-  private static final char LEGACY_SEPARATOR = '\0';
+  public static final char LEGACY_SEPARATOR = '\0';
 
-  private static final String BUNGEE_GUARD_TOKEN_PROPERTY_NAME = "bungeeguard-token";
+  public static final String BUNGEE_GUARD_TOKEN_PROPERTY_NAME = "bungeeguard-token";
 
   private PlayerDataForwarding() {
   }

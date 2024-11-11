@@ -100,8 +100,8 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
         return true;
       }
 
-      if (handshake.getBungeeHandShakeData().split("\00").length > 1) {
-        connection.setBungeeHandShakeData(handshake.getBungeeHandShakeData());
+      if (handshake.getBungeeHandshakeData() != null) {
+        connection.setBungeeHandshakeData(handshake.getBungeeHandshakeData());
       }
 
       connection.setProtocolVersion(handshake.getProtocolVersion());
