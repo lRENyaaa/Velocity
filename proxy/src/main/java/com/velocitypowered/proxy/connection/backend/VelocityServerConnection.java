@@ -201,10 +201,6 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
             .getPort());
     mc.delayedWrite(handshake);
 
-    System.out.println("OnlineMode: " + proxyPlayer.isOnlineMode());
-    System.out.println("UUID: " + proxyPlayer.getUniqueId());
-    System.out.println("Properties: " + GENERAL_GSON.toJson(proxyPlayer.getGameProfileProperties()));
-
     mc.setProtocolVersion(protocolVersion);
     mc.setActiveSessionHandler(StateRegistry.LOGIN);
     if (proxyPlayer.getIdentifiedKey() == null
