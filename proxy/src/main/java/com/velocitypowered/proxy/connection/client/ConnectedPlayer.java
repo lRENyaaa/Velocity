@@ -203,7 +203,8 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     this.rawVirtualHost = rawVirtualHost;
     this.permissionFunction = PermissionFunction.ALWAYS_UNDEFINED;
     this.connectionPhase = connection.getType().getInitialClientPhase();
-    this.onlineMode = onlineMode;
+    this.bungeeHandshakeData = connection.getBungeeHandshakeData();
+    this.onlineMode = bungeeHandshakeData != null || onlineMode;
 
     if (connection.getProtocolVersion().noLessThan(ProtocolVersion.MINECRAFT_1_19_3)) {
       this.tabList = new VelocityTabList(this);
@@ -216,7 +217,10 @@ public class ConnectedPlayer implements MinecraftConnectionAssociation, Player, 
     this.chatQueue = new ChatQueue(this);
     this.chatBuilderFactory = new ChatBuilderFactory(this.getProtocolVersion());
     this.resourcePackHandler = ResourcePackHandler.create(this, server);
-    this.bungeeHandshakeData = connection.getBungeeHandshakeData();
+
+    if (bungeeHandshakeData != null) {
+      this.profile = bungeeHandshakeData.genrateGameProfile(profile.getName());
+    }
   }
 
   /**

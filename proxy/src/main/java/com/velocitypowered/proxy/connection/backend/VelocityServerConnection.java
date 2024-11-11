@@ -17,6 +17,7 @@
 
 package com.velocitypowered.proxy.connection.backend;
 
+import static com.velocitypowered.proxy.VelocityServer.GENERAL_GSON;
 import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
 import static com.velocitypowered.proxy.network.Connections.HANDLER;
 import static java.util.Objects.requireNonNull;
@@ -145,6 +146,7 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
     if (proxyPlayer.getBungeeHandshakeData() != null) {
       return proxyPlayer.getBungeeHandshakeData().encode(null);
     }
+
     return PlayerDataForwarding.createLegacyForwardingAddress(
       proxyPlayer.getVirtualHost().orElseGet(() ->
         registeredServer.getServerInfo().getAddress()).getHostString(),
@@ -198,6 +200,10 @@ public class VelocityServerConnection implements MinecraftConnectionAssociation,
             .orElseGet(() -> registeredServer.getServerInfo().getAddress())
             .getPort());
     mc.delayedWrite(handshake);
+
+    System.out.println("OnlineMode: " + proxyPlayer.isOnlineMode());
+    System.out.println("UUID: " + proxyPlayer.getUniqueId());
+    System.out.println("Properties: " + GENERAL_GSON.toJson(proxyPlayer.getGameProfileProperties()));
 
     mc.setProtocolVersion(protocolVersion);
     mc.setActiveSessionHandler(StateRegistry.LOGIN);

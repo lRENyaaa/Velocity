@@ -115,8 +115,12 @@ public class BungeeHandshakeData {
         return this.floodgatePlayerData;
     }
 
-    private @Nullable String forwardingSecret() {
+    public @Nullable String forwardingSecret() {
         return this.forwardingSecret;
+    }
+
+    public GameProfile genrateGameProfile(String name) {
+        return new GameProfile(uniqueId, name, properties);
     }
 
     @Override
