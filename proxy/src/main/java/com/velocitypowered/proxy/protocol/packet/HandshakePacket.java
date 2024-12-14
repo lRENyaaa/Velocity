@@ -96,9 +96,10 @@ public class HandshakePacket implements MinecraftPacket {
   @Override
   public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion ignored) {
     int realProtocolVersion = ProtocolUtils.readVarInt(buf);
+    String addressString = ProtocolUtils.readString(buf);
     this.protocolVersion = ProtocolVersion.getProtocolVersion(realProtocolVersion);
-    this.bungeeHandshakeData = decode(ProtocolUtils.readString(buf));
-    this.serverAddress = getServerAddress(buf,bungeeHandshakeData);
+    this.bungeeHandshakeData = decode(addressString);
+    this.serverAddress = getServerAddress(addressString,bungeeHandshakeData);
     this.port = buf.readUnsignedShort();
     this.nextStatus = ProtocolUtils.readVarInt(buf);
     this.intent = HandshakeIntent.getById(nextStatus);
@@ -117,9 +118,9 @@ public class HandshakePacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
-  private static String getServerAddress(ByteBuf buf, BungeeHandshakeData handShakeData) {
+  private static String getServerAddress(String serverAddress, BungeeHandshakeData handShakeData) {
     if (handShakeData == null) {
-      return ProtocolUtils.readString(buf, MAXIMUM_HOSTNAME_LENGTH);
+      return serverAddress;
     }
 
     String address = handShakeData.serverHostname();
