@@ -117,7 +117,7 @@ public class HandshakePacket implements MinecraftPacket {
     return handler.handle(this);
   }
 
-  private static String getServerAddress(ByteBuf buf,BungeeHandshakeData handShakeData) {
+  private static String getServerAddress(ByteBuf buf, BungeeHandshakeData handShakeData) {
     if (handShakeData == null) {
       return ProtocolUtils.readString(buf, MAXIMUM_HOSTNAME_LENGTH);
     }
@@ -129,7 +129,7 @@ public class HandshakePacket implements MinecraftPacket {
   }
 
   private static BungeeHandshakeData decode(String string) {
-    if (string.split("" + LEGACY_SEPARATOR).length < 1) return null;
+    if (string.split("" + LEGACY_SEPARATOR).length < 4) return null;
 
     try {
       return BungeeHandshakeData.decodeFromString(string);
