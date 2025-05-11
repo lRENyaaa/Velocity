@@ -39,9 +39,11 @@ import com.velocitypowered.proxy.protocol.packet.HandshakePacket;
 import com.velocitypowered.proxy.protocol.packet.LegacyDisconnect;
 import com.velocitypowered.proxy.protocol.packet.LegacyHandshakePacket;
 import com.velocitypowered.proxy.protocol.packet.LegacyPingPacket;
+import com.velocitypowered.proxy.protocol.util.BungeeHandshakeData;
 import io.netty.buffer.ByteBuf;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -137,6 +139,16 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
               .arguments(Component.text(ProtocolVersion.SUPPORTED_VERSION_STRING))
               .build());
       return;
+    }
+
+    BungeeHandshakeData handshakeData = handshake.getBungeeHandshakeData();
+    if (handshakeData != null) {
+      String serverSecret = new String(server.getConfiguration().getForwardingSecret(), StandardCharsets.UTF_8);
+      String playerSecret = handshakeData.forwardingSecret();
+      if (playerSecret == null || !playerSecret.equals(serverSecret)) {
+        ic.disconnect(Component.text("Incorrect forwarding secret"));
+        return;
+      }
     }
 
     final InetAddress address = ((InetSocketAddress) connection.getRemoteAddress()).getAddress();
