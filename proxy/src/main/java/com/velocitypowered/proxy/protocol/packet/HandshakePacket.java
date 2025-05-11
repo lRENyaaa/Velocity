@@ -20,6 +20,7 @@ package com.velocitypowered.proxy.protocol.packet;
 import static com.velocitypowered.proxy.connection.PlayerDataForwarding.LEGACY_SEPARATOR;
 import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
 
+import com.google.gson.JsonSyntaxException;
 import com.velocitypowered.api.network.HandshakeIntent;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
@@ -142,7 +143,9 @@ public class HandshakePacket implements MinecraftPacket {
   }
 
   private static BungeeHandshakeData decode(String string) {
-    if (string.split("" + LEGACY_SEPARATOR).length < 4) return null;
+    String[] split = string.split("" + LEGACY_SEPARATOR);
+    if (split.length < 4) return null;
+    if (split[3].equals("FML")) return null;
 
     try {
       return BungeeHandshakeData.decodeFromString(string);
