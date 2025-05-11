@@ -129,6 +129,18 @@ public class HandshakePacket implements MinecraftPacket {
     return address;
   }
 
+  @Override
+  public int expectedMinLength(ByteBuf buf, ProtocolUtils.Direction direction,
+                               ProtocolVersion version) {
+    return 7;
+  }
+
+  @Override
+  public int expectedMaxLength(ByteBuf buf, ProtocolUtils.Direction direction,
+                               ProtocolVersion version) {
+    return 9 + (ProtocolUtils.DEFAULT_MAX_STRING_SIZE * 3);
+  }
+
   private static BungeeHandshakeData decode(String string) {
     if (string.split("" + LEGACY_SEPARATOR).length < 4) return null;
 

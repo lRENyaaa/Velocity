@@ -114,7 +114,7 @@ public class VelocityRegisteredServer implements RegisteredServer, ForwardingAud
     server.createBootstrap(loop).handler(new ChannelInitializer<>() {
       @Override
       protected void initChannel(Channel ch) {
-        ch.pipeline().addLast(FRAME_DECODER, new MinecraftVarintFrameDecoder())
+        ch.pipeline().addLast(FRAME_DECODER, new MinecraftVarintFrameDecoder(ProtocolUtils.Direction.CLIENTBOUND))
             .addLast(READ_TIMEOUT, new ReadTimeoutHandler(
                 pingOptions.getTimeout() == 0
                     ? server.getConfiguration().getReadTimeout()
@@ -129,7 +129,7 @@ public class VelocityRegisteredServer implements RegisteredServer, ForwardingAud
       if (future.isSuccess()) {
         MinecraftConnection conn = future.channel().pipeline().get(MinecraftConnection.class);
         PingSessionHandler handler = new PingSessionHandler(pingFuture,
-            VelocityRegisteredServer.this, conn, pingOptions.getProtocolVersion());
+            VelocityRegisteredServer.this, conn, pingOptions.getProtocolVersion(), pingOptions.getVirtualHost());
         conn.setActiveSessionHandler(StateRegistry.HANDSHAKE, handler);
       } else {
         pingFuture.completeExceptionally(future.cause());

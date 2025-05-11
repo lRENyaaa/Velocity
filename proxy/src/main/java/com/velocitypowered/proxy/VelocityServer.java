@@ -75,6 +75,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
@@ -162,7 +163,9 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   private final Map<UUID, ConnectedPlayer> connectionsByUuid = new ConcurrentHashMap<>();
   private final Map<String, ConnectedPlayer> connectionsByName = new ConcurrentHashMap<>();
   private final VelocityConsole console;
-  private @MonotonicNonNull Ratelimiter ipAttemptLimiter;
+  private @MonotonicNonNull Ratelimiter<InetAddress> ipAttemptLimiter;
+  private @MonotonicNonNull Ratelimiter<UUID> commandRateLimiter;
+  private @MonotonicNonNull Ratelimiter<UUID> tabCompleteRateLimiter;
   private final VelocityEventManager eventManager;
   private final VelocityScheduler scheduler;
   private final VelocityChannelRegistrar channelRegistrar = new VelocityChannelRegistrar();
@@ -236,6 +239,15 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
 
     registerTranslations();
 
+    // Yes, you're reading that correctly. We're generating a 1024-bit RSA keypair. Sounds
+    // dangerous, right? We're well within the realm of factoring such a key...
+    //
+    // You can blame Mojang. For the record, we also don't consider the Minecraft protocol
+    // encryption scheme to be secure, and it has reached the point where any serious cryptographic
+    // protocol needs a refresh. There are multiple obvious weaknesses, and this is far from the
+    // most serious.
+    //
+    // If you are using Minecraft in a security-sensitive application, *I don't know what to say.*
     serverKeyPair = EncryptionUtils.createRsaKeyPair(1024);
 
     cm.logChannelInformation();
@@ -286,6 +298,8 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     }
 
     ipAttemptLimiter = Ratelimiters.createWithMilliseconds(configuration.getLoginRatelimit());
+    commandRateLimiter = Ratelimiters.createWithMilliseconds(configuration.getCommandRatelimit());
+    tabCompleteRateLimiter = Ratelimiters.createWithMilliseconds(configuration.getTabCompleteRatelimit());
     loadPlugins();
 
     // Go ahead and fire the proxy initialization event. We block since plugins should have a chance
@@ -645,8 +659,16 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
     return cm.createHttpClient();
   }
 
-  public Ratelimiter getIpAttemptLimiter() {
+  public @MonotonicNonNull Ratelimiter<InetAddress> getIpAttemptLimiter() {
     return ipAttemptLimiter;
+  }
+
+  public @MonotonicNonNull Ratelimiter<UUID> getCommandRateLimiter() {
+    return commandRateLimiter;
+  }
+
+  public @MonotonicNonNull Ratelimiter<UUID> getTabCompleteRateLimiter() {
+    return tabCompleteRateLimiter;
   }
 
   /**
@@ -793,6 +815,11 @@ public class VelocityServer implements ProxyServer, ForwardingAudience {
   @Override
   public VelocityChannelRegistrar getChannelRegistrar() {
     return channelRegistrar;
+  }
+  
+  @Override
+  public boolean isShuttingDown() {
+    return shutdownInProgress.get();
   }
 
   @Override
