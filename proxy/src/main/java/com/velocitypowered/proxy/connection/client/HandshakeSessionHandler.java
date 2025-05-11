@@ -25,6 +25,7 @@ import com.velocitypowered.api.network.ProtocolState;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.config.PlayerInfoForwarding;
+import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.connection.ConnectionType;
 import com.velocitypowered.proxy.connection.ConnectionTypes;
 import com.velocitypowered.proxy.connection.MinecraftConnection;
@@ -96,14 +97,25 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
     } else {
       final InitialInboundConnection ic = new InitialInboundConnection(connection,
               cleanVhost(handshake.getServerAddress()), handshake);
+      final VelocityConfiguration configuration = server.getConfiguration();
+
       if (handshake.getIntent() == HandshakeIntent.TRANSFER
-              && !server.getConfiguration().isAcceptTransfers()) {
+          && !configuration.isAcceptTransfers()) {
         ic.disconnect(Component.translatable("multiplayer.disconnect.transfers_disabled"));
         return true;
       }
 
-      if (handshake.getBungeeHandshakeData() != null) {
-        connection.setBungeeHandshakeData(handshake.getBungeeHandshakeData());
+      BungeeHandshakeData handshakeData = handshake.getBungeeHandshakeData();
+      if (handshakeData != null) {
+        if (configuration.getPlayerInfoForwardingMode() == PlayerInfoForwarding.BUNGEEGUARD) {
+          String serverSecret = new String(configuration.getForwardingSecret(), StandardCharsets.UTF_8);
+          String playerSecret = handshakeData.forwardingSecret();
+          if (playerSecret == null || !playerSecret.equals(serverSecret)) {
+            ic.disconnect(Component.text("Incorrect forwarding secret"));
+            return false;
+          }
+        }
+        connection.setBungeeHandshakeData(handshakeData);
       }
 
       connection.setProtocolVersion(handshake.getProtocolVersion());
@@ -139,16 +151,6 @@ public class HandshakeSessionHandler implements MinecraftSessionHandler {
               .arguments(Component.text(ProtocolVersion.SUPPORTED_VERSION_STRING))
               .build());
       return;
-    }
-
-    BungeeHandshakeData handshakeData = handshake.getBungeeHandshakeData();
-    if (handshakeData != null) {
-      String serverSecret = new String(server.getConfiguration().getForwardingSecret(), StandardCharsets.UTF_8);
-      String playerSecret = handshakeData.forwardingSecret();
-      if (playerSecret == null || !playerSecret.equals(serverSecret)) {
-        ic.disconnect(Component.text("Incorrect forwarding secret"));
-        return;
-      }
     }
 
     final InetAddress address = ((InetSocketAddress) connection.getRemoteAddress()).getAddress();

@@ -20,7 +20,6 @@ package com.velocitypowered.proxy.protocol.packet;
 import static com.velocitypowered.proxy.connection.PlayerDataForwarding.LEGACY_SEPARATOR;
 import static com.velocitypowered.proxy.connection.forge.legacy.LegacyForgeConstants.HANDSHAKE_HOSTNAME_TOKEN;
 
-import com.google.gson.JsonSyntaxException;
 import com.velocitypowered.api.network.HandshakeIntent;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
