@@ -456,6 +456,8 @@ public class MinecraftConnection extends ChannelInboundHandlerAdapter {
    */
   public void setBungeeHandshakeData(@NonNull BungeeHandshakeData bungeeHandshakeData) {
     this.bungeeHandshakeData = bungeeHandshakeData;
+    this.remoteAddress = new InetSocketAddress(bungeeHandshakeData.socketAddressHostname(),
+            ((InetSocketAddress) this.remoteAddress).getPort());
   }
 
   public @Nullable MinecraftSessionHandler getActiveSessionHandler() {
